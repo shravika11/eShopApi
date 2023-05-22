@@ -1,1 +1,97 @@
+using eShopApi.Models;
+using eShopApi.Services;
+using Microsoft.AspNetCore.Mvc;
 
+namespace eShopApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AddressController : Controller
+    {
+        private readonly AddressService _addressService;
+
+        public AddressController(AddressService addressService)
+        {
+            _addressService = addressService;
+        }
+        // POST api/address
+        // Adds a new address
+        [HttpPost]
+        public async Task<ActionResult<Address>> PostAddress(Address address)
+        {
+            await _addressService.SaveAddress(address);
+
+            return CreatedAtAction(nameof(GetAddress), new { id = address.AddressId }, address);
+        }
+
+        // GET api/address/{id}
+        // Gets an address by ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Address>> GetAddress(int id)
+        {
+            var address = await _addressService.GetAddress(id);
+
+            if (address == null)
+            {
+                return NotFound();
+            }
+
+            return address;
+        }
+
+        // GET api/address/user/{userId}
+        // Gets an address by user ID
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<Address>> GetUserAddress(int userId)
+        {
+            var address = await _addressService.GetUserAddress(userId);
+
+            if (address == null)
+            {
+                return NotFound();
+            }
+
+            return address;
+        }
+
+        // GET api/address/
+        // Gets all addresses
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Address>>> GetAllAddress()
+        {
+            return await _addressService.GetAllAddress();
+        }
+
+     
+
+        // PUT api/address/{id}
+        // Updates an existing address
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutAddress(int id, Address address)
+        {
+            if (id != address.AddressId)
+            {
+                return BadRequest();
+            }
+
+            await _addressService.UpdateAddress(address);
+
+            return Ok(address);
+        }
+
+        // DELETE api/address/{id}
+        // Deletes an address by ID
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<string>> DeleteAddress(int id)
+        {
+            var msg = await _addressService.DeleteAddress(id);
+
+            if (msg == "Deleted")
+            {
+                return Ok(msg);
+            }
+
+            return NotFound();
+        }
+    }
+}
